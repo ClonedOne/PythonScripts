@@ -42,6 +42,22 @@ def acquire_labels (file_name):
     return label_list
 
 
+def acquire_stats (data_dict, categories):
+    stat_dict = {}
+    cat_list = categories.keys()
+    for cat in cat_list:
+        stat_dict[cat] = {}
+    for cat in data_dict:
+        if cat in cat_list:
+            list_of_values = data_dict[cat]
+            for value in list_of_values:
+                if value in stat_dict[cat]:
+                    stat_dict[cat][value] += 1
+                else:
+                    stat_dict[cat][value] = 1
+    return stat_dict
+
+
 def compute_points_dataframe (data_dict, categories):
     points = {}
     cat_list = categories.keys()
@@ -106,13 +122,18 @@ def main ():
             print len(categories[key])
 
     df = compute_points_dataframe (data_dict, categories)
+    stat_dict = acquire_stats(data_dict, categories)
     if debug:
+        print stat_dict
         print df
+
     for comb in combinations(categories.keys(), 2):
         if len(label_list) > 0:
             graph_single_point(df, comb[0], comb[1], categories, label_list)
         else:
             graph_single_point(df, comb[0], comb[1], categories)
+
+
 
 if __name__ == '__main__':
     main()
