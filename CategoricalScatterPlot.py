@@ -7,8 +7,7 @@ from itertools import combinations
 from matplotlib import cm
 
 
-
-def acquire_data (file_name):
+def acquire_data(file_name):
     data_dict = {}
     with open(file_name) as csvfile:
         reader = csv.DictReader(csvfile)
@@ -20,7 +19,7 @@ def acquire_data (file_name):
     return data_dict
 
 
-def acquire_categories (file_name):
+def acquire_categories(file_name):
     categories = {}
     with open(file_name) as csvfile:
         reader = csv.DictReader(csvfile)
@@ -32,7 +31,7 @@ def acquire_categories (file_name):
     return categories
 
 
-def acquire_labels (file_name):
+def acquire_labels(file_name):
     label_list = []
     with open(file_name) as label_file:
         for line in label_file:
@@ -40,7 +39,7 @@ def acquire_labels (file_name):
     return label_list
 
 
-def acquire_stats (data_dict, categories):
+def acquire_stats(data_dict, categories):
     stat_dict = {}
     cat_list = categories.keys()
     for cat in cat_list:
@@ -56,7 +55,7 @@ def acquire_stats (data_dict, categories):
     return stat_dict
 
 
-def compute_points_dataframe (data_dict, categories, fuzzy=True):
+def compute_points_dataframe(data_dict, categories, fuzzy=True):
     points = {}
     cat_list = categories.keys()
     for category in cat_list:
@@ -80,30 +79,29 @@ def compute_points_dataframe (data_dict, categories, fuzzy=True):
     return df
 
 
-def graph_single_point (df, cat1, cat2, categories, label_list=None):
-    cmap = cm.get_cmap('winter')
+def graph_single_point(df, cat1, cat2, categories, label_list=None):
+    color_map = cm.get_cmap('winter')
     cat_length_1 = len(categories[cat1])
     cat_length_2 = len(categories[cat2])
     fig = plt.figure()
     ax = fig.add_subplot(111)
-    df.plot(cat1, cat2, kind='scatter', marker='o' , ax=ax, s=65, c=df[cat1] , linewidth=0, cmap=cmap)
+    df.plot(cat1, cat2, kind='scatter', marker='o', ax=ax, s=65, c=df[cat1], linewidth=0, cmap=color_map)
     plt.xticks(np.arange(cat_length_1 + 1), categories[cat1], fontsize=14)
     plt.yticks(np.arange(cat_length_2 + 1), categories[cat2], fontsize=14)
     for item in [ax.title, ax.xaxis.label, ax.yaxis.label]:
         item.set_fontsize(14)
-    if label_list != None:
+    if label_list is not None:
         for k, v in df.iterrows():
             if k in label_list:
-                ax.annotate(k, (v[cat1], v[cat2]), xytext=(rnd.randint(-50, 50), rnd.randint(-60, 60)), textcoords='offset points',
-                        family='sans-serif', fontsize=16,  ha = 'center', va = 'bottom', color='darkslategrey',
-                        arrowprops = dict(arrowstyle = '-|>', connectionstyle = 'arc3,rad=0'))
-
-    #plt.tight_layout()
+                ax.annotate(k, (v[cat1], v[cat2]), xytext=(rnd.randint(-50, 50), rnd.randint(-60, 60)),
+                            textcoords='offset points',
+                            family='sans-serif', fontsize=16, ha='center', va='bottom', color='darkslategrey',
+                            arrowprops=dict(arrowstyle='-|>', connectionstyle='arc3,rad=0'))
     plt.show()
 
 
-def graph_points_bubble (df, cat1, cat2, categories):
-    point_occurencies = count_point_occurrences(df, cat1, cat2)
+def graph_points_bubble(data_frame, cat1, cat2, categories):
+    point_occurrences = count_point_occurrences(data_frame, cat1, cat2)
     cmap = cm.get_cmap('winter')
     cat_length_1 = len(categories[cat1])
     cat_length_2 = len(categories[cat2])
@@ -111,14 +109,13 @@ def graph_points_bubble (df, cat1, cat2, categories):
     ax = fig.add_subplot(111)
     plt.xticks(np.arange(cat_length_1 + 1), categories[cat1], fontsize=14)
     plt.yticks(np.arange(cat_length_2 + 1), categories[cat2], fontsize=14)
-    df.plot(cat1, cat2, kind='scatter', marker='o', ax=ax, s=point_occurencies, c=df[cat1], linewidth=0, cmap=cmap)
+    data_frame.plot(cat1, cat2, kind='scatter', marker='o', ax=ax, s=point_occurrences, c=data_frame[cat1], linewidth=0, cmap=cmap)
     for item in [ax.title, ax.xaxis.label, ax.yaxis.label]:
-        item.set_fontsize(14)
+        item.set_fontsize(16)
     plt.show()
 
 
-
-def graph_stats_bubble (stat_dict, categories):
+def graph_stats_bubble(stat_dict, categories):
     cmap = cm.get_cmap('brg')
     x = []
     lables_x = []
@@ -132,19 +129,17 @@ def graph_stats_bubble (stat_dict, categories):
             y.append(stat_dict[cat])
         else:
             y.append(0)
-    s = [30 * (elem**2) for elem in y]
+    s = [30 * (elem ** 2) for elem in y]
     fig = plt.figure()
     ax = fig.add_subplot(111)
     plt.xticks(np.arange(len(lables_x)), lables_x, fontsize=14)
     for item in [ax.title, ax.xaxis.label, ax.yaxis.label]:
         item.set_fontsize(14)
-    plt.scatter(x,y,s=s, c=s, cmap=cmap)
-    plt.tight_layout()
+    plt.scatter(x, y, s=s, c=s, cmap=cmap)
     plt.show()
 
 
-
-def count_point_occurrences (df, cat1, cat2):
+def count_point_occurrences(df, cat1, cat2):
     occurs = {}
     feature_1 = df[cat1]
     feature_2 = df[cat2]
@@ -157,11 +152,11 @@ def count_point_occurrences (df, cat1, cat2):
     occurs_list = []
     for i in range(len(feature_1)):
         point = feature_1[i], feature_2[i]
-        occurs_list.append((occurs[point]**2)*100)
+        occurs_list.append((occurs[point] ** 2) * 100)
     return occurs_list
 
 
-def main ():
+def main():
     debug = True
     if len(sys.argv) < 3:
         print "Please provide a valid file path for the data file and the category file [optional label file path]"
@@ -171,19 +166,19 @@ def main ():
     data_dict = acquire_data(sys.argv[1])
     categories = acquire_categories(sys.argv[2])
     if len(sys.argv) == 4:
-        label_list = acquire_labels(sys.argv[3]);
+        label_list = acquire_labels(sys.argv[3])
 
     if debug:
-        pprint.pprint (data_dict)
+        pprint.pprint(data_dict)
         for key in data_dict:
             print len(data_dict[key])
-        pprint.pprint (categories)
+        pprint.pprint(categories)
         for key in categories:
             print len(categories[key])
 
-    df = compute_points_dataframe (data_dict, categories)
+    df = compute_points_dataframe(data_dict, categories)
     stat_dict = acquire_stats(data_dict, categories)
-    df_not_fuzzy = compute_points_dataframe (data_dict, categories, fuzzy=False)
+    df_not_fuzzy = compute_points_dataframe(data_dict, categories, fuzzy=False)
     if debug:
         print stat_dict
         print df
@@ -202,13 +197,8 @@ def main ():
             graph_single_point(df, comb[0], comb[1], categories)
     '''
 
-
     for comb in combinations(categories.keys(), 2):
         graph_points_bubble(df_not_fuzzy, comb[0], comb[1], categories)
-
-
-
-
 
 
 if __name__ == '__main__':
